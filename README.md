@@ -2,7 +2,7 @@
 
 Sintering
 
-Theory identification of unpaired spins
+Theory identifying unpaired spins to increase above Curie temperture  
 
 
 ## Simulation procedure
