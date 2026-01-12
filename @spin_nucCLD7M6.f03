@@ -1,14 +1,23 @@
 !*****************************************************************
 !*                                                               *
-!*  Spin Molecular Dynamics Simulation                           * 
-!*    @spin_nucCLD7M6.f03, param-spinRL6.h, SAI106_config.START1 *
+!*  ### Dissipative Spin Molecular Dynamics Simulation ###       * 
+!*                                                               *
+!*    Numerical code:                                            *
+!*      Author: Motohiko Tanaka, PhD., Nagoya 464, Japan.        *
+!*      https://github.com/Mtanaka77/                            *
+!*                                                               *
+!*      @spin_nucCLD7M6.f03,                                     *
+!*      param-spinRL6.h,                                         *
+!*      SAI106_config.START1,                                    *
+!*      magnetite8.xyz                                           *
+!*                                                               *
+!*   Ref: Selective heating mechanism of magnetite metal oxides  *
+!*      by a microwave magnetic field, M. Tanaka, H. Kono, and   *
+!*      K. Maruyama, Phys. Rev. B, 79, 104420 (2009).            *
 !*                                                               *
 !*   Spin dynamics under the microwave H field for electrons,    *
 !*   while nuclei feel forces from spins, Neighboring nuclei     * 
 !*   and restoring forces on their lattice points.               *          
-!*                                                               *
-!*   Author: Motohiko Tanaka, PhD., Nagoya 464, Japan.           *
-!*   https://github.com/Mtanaka77/                               *
 !*                                                               *
 !** First: 2007/7/07 *********************** Update: 2026/1/11 ***
 !
@@ -3275,7 +3284,7 @@
                 status='unknown',position='append',form='formatted')
 !
         write(11,604) Bapx,Bapy,Bapz,tau_b,tau_diss,Temp,TCurie
-  604   format('Bapx,Bapy,Bapz=',1d3d11.3,/, &
+  604   format('Bapx,Bapy,Bapz=',1p3d11.3,/, &
                'tau_b,tau_diss=',2d11.3,/, &
                'Temp,TCurie=',0p2f8.1)
 !
