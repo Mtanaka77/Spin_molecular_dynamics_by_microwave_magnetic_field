@@ -1,23 +1,23 @@
 !*****************************************************************
 !*                                                               *
-!*  ### Dissipative Spin Molecular Dynamics Simulation ###       * 
+!*    ### Dissipative Spin Molecular Dynamics Simulation ###     * 
 !*                                                               *
-!*    Numerical code:                                            *
+!*    Numerical code by:                                         *
 !*      Author: Motohiko Tanaka, PhD., Nagoya 464, Japan.        *
 !*      https://github.com/Mtanaka77/                            *
 !*                                                               *
 !*      @spin_nucCLD7M6.f03,                                     *
 !*      param-spinRL6.h,                                         *
 !*      SAI106_config.START1,                                    *
-!*      magnetite8.xyz                                           *
+!*      magnetite8.xyz                                           * 
+!*                                                               *
+!*   Spin dynamics under the microwave H field for electrons,    *
+!*   while nuclei feel forces from spins, Neighboring nuclei     * 
+!*   and restoring forces on their lattice points.               *
 !*                                                               *
 !*   Ref: Selective heating mechanism of magnetite metal oxides  *
 !*      by a microwave magnetic field, M. Tanaka, H. Kono, and   *
 !*      K. Maruyama, Phys. Rev. B, 79, 104420 (2009).            *
-!*                                                               *
-!*   Spin dynamics under the microwave H field for electrons,    *
-!*   while nuclei feel forces from spins, Neighboring nuclei     * 
-!*   and restoring forces on their lattice points.               *          
 !*                                                               *
 !** First: 2007/7/07 *********************** Update: 2026/1/11 ***
 !
