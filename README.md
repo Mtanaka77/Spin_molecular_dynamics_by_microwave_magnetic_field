@@ -1,1 +1,1 @@
-# Spin_dynamics_Microwaves
+# Spin_dynamics_microwaves
