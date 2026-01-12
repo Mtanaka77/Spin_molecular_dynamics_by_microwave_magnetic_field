@@ -19,7 +19,7 @@ param_spinRL6.h: parameters
 
 SAI106_config.START1: configuration
 
-magnetite8.xyz: magnetite in a cubic cell
+magnetite8.xyz: magnetite in a cubic lattice
 
 
 
