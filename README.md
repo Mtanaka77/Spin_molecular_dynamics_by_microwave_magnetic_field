@@ -1,5 +1,9 @@
 # Spin_molecular_dynamics_by_magnetic_microwaves
 
+Sintering
+
+Theory identification of unpaired spins
+
 
 ## Simulation procedure
 
