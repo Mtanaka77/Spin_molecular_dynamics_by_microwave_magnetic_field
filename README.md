@@ -1,6 +1,6 @@
 # Spin_molecular_dynamics_by_magnetic_microwaves
 
-## Experiments and Theory
+## Sintering Experiments and Theory
 
 Sintering by experiments, Prof. R. Roy et. al., Nature, 399, 688 (1999).  
 
