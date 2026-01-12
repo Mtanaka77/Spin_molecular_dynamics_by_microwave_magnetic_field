@@ -4,7 +4,7 @@
 
 Sintering by experiments, Prof. R. Roy et. al., Nature, 399, 688 (1999).  
 
-Theory identifying unpaired 3d electron spins to increase above Curie temperture,  
+Theory identifying unpaired 3d electron spins of increase above Curie temperture,  
 Selective heating mechanism of magnetic metal oxides by a microwave 
 magnetic field, Phys. Rev. B, 79, 104420 (2009).
 
