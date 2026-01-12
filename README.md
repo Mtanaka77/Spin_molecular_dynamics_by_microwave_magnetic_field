@@ -9,7 +9,9 @@ Microwaves of giga-Hertz frequency
 
 dissipated spin molecular dynamics simulation 
 
-Metropolis criterion for the next step: accept/reject
+  execution of 1,000,000 steps
+
+  Metropolis criterion for the next step: accept/reject
 
 
 
