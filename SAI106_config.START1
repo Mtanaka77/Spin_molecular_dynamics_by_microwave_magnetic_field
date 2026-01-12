@@ -1,0 +1,27 @@
+# Praefix-String......................: SAI106
+# Maximum cpu time for this run.......:   300.000000000000000
+# Physical end time (ps)..............: 12001.000000000000000
+# Diskretisierungs-Schritt (ps).0001..:     0.001000000000000
+# Write out interval for IWRT1..10.0..:     0.500000000000000 
+# Write out interval for IWRT2........:  1000.000000000000000 
+# Box size: xmax (Ang)................:     8.397000000
+# Box size: ymax (Ang)................:     8.397000000
+# Box size: zmax (Ang)................:     8.397000000
+# Number of domains in x (integer)....:     6
+# Number of domains in y (integer)....:     6
+# Number of domains in z (integer)....:     6
+# Maximum iteration counts (MC).......:  370001
+# Cutoff radius of interactions (Ang).:     3.700000000000000
+# Cutoff radius of ES interaction.....:     7.000000000000000 
+# Maximum iteration counts (dynamics).:     100
+# MD iteration tolerance (1.e-6)......:     1.d-6
+# Exchange integral A-A (10meV).......:    -0.03d0
+# Exchange integral B-B ..............:    -0.03d0
+# Exchange integral A-B ..............:    -0.40d0
+# Magnetic field Bx (100gauss)........:     0.d0
+# Magnetic field By (100gauss)........:     0.d0
+# Magnetic field Bz (100gauss)........:     0.5d2
+# Period of microwave field (ps)......:    400.d0
+# Spin relaxation time (ps)...........:   1000.d0
+# Temperature (Kelvin)..700.d0........:    300.d0
+# Curie temperature (Kelvin)..........:    858.d0
