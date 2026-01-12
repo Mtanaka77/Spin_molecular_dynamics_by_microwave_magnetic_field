@@ -1,5 +1,7 @@
 # Spin_molecular_dynamics_by_magnetic_microwaves
 
+## Experiments and Theory
+
 Sintering by experiments, Prof. R. Roy et. al., Nature, 399, 688 (1999).  
 
 Theory identifying unpaired 3d electron spins to increase above Curie temperture,  
