@@ -1,4 +1,4 @@
-# Spin_molecular_dynamics_by_microwaves
+# Spin_molecular_dynamics_by_magnetic_microwaves
 
 
 ## Simulation procedure
