@@ -4,7 +4,7 @@
 
 Sintering by experiments, Prof. R. Roy et. al., Nature, 399, 688 (1999).  
 
-Theory identifying unpaired 3d electron spins of increase above Curie temperture,  
+Theory identifying unpaired 3d electron spins to increase above Curie temperture,  
 Selective heating mechanism of magnetic metal oxides by a microwave 
 magnetic field, Phys. Rev. B, 79, 104420 (2009).
 
@@ -15,7 +15,7 @@ Moving spins of Fe(3+), Fe(2+) and O(2-) in cubic cells
 
 Microwaves of giga-Hertz frequency
 
-dissipated spin molecular dynamics simulation 
+Dissipated spin molecular dynamics simulation 
 
   > execution of 1,000,000 steps
 
@@ -35,7 +35,8 @@ param_spinRL6.h: parameters
 SAI106_config.START1: configuration
 
  > physical run time, lattice size, number of cells, exchange integrals for Fe and O,
-  period of microwave magnetic field, temperature, Curie temprature
+  period of microwave magnetic field, temperature, Curie temprature, etc.
+  About 1,000,000 steps are required !
 
 magnetite8.xyz: magnetite in a cubic lattice
 
