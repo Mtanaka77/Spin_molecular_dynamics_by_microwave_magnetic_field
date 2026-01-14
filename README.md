@@ -17,7 +17,7 @@ Microwaves of giga-Hertz frequency
 
 Dissipated spin molecular dynamics simulation 
 
-  > execution of 1,000,000 steps of $ Delta t= 0.001 $ ps
+  > execution of about 10,000 steps of $ Delta t= 0.001 $ ps
 
   > Metropolis criterion for the next step: accept/reject
 
