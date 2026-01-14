@@ -2,10 +2,10 @@
 
 ## Sintering Experiments and Theory
 
-Sintering by experiments, Prof. R. Roy et. al., Nature (1999).  
+Sintering by experiments, by Prof. R. Roy. (Nature, 1999).  
 
 Theory identifying unpaired 3d electron spins to increase above 
-Curie temperture (J. Chem. Phys, 2009).  
+Curie temperture (M. Tanaka et al., J. Chem. Phys, 2009).  
 
 
 ## Simulation Procedure
@@ -39,7 +39,7 @@ SAI106_config.START1: configuration
 
 magnetite8.xyz: magnetite in a cubic lattice
 
-References
+## References
 
 1. R. Roy, D. Agrawal, J. Cheng, and S. Gedevanishvili,
 Nature, 399, 668 (1999).
