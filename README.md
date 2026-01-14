@@ -16,7 +16,7 @@ Microwaves of giga-Hertz frequency
 
 Dissipated spin molecular dynamics simulation 
 
-  > execution of about 10,000 steps of $ Delta t= 0.001 $ ps
+  > Execution of about 10,000,000 steps of $ Delta t= 0.001 $ ps
 
   > Metropolis criterion for the next step: accept/reject
 
@@ -35,7 +35,7 @@ SAI106_config.START1: configuration
 
  > physical run time, lattice size, number of cells, exchange integrals for Fe and O,
   period of microwave magnetic field, temperature, Curie temprature, etc.
-  About 1,000,000 steps are required !
+  About 5,000,000 steps are required !
 
 magnetite8.xyz: magnetite in a cubic lattice
 
