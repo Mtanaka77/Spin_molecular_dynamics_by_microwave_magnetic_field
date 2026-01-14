@@ -125,12 +125,13 @@
 !*  Format statement is DIFFERENT in Fortran 2003.               *
 !*****************************************************************
 !  Parallel Fortran 2003:                                        *
-!% mpif90 -mcmodel=medium -fpic -o ax.out @spin_nucCLD7M6a.f03 -I/opt/fftw-3.3.10/include -L/opt/fftw-3.3.10/lib -lfftw3 &> log
+!% mpif90 -mcmodel=medium -fpic -o ax.out @spin_nucCLD7M6e.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
+! Debian-13: -fallow-argument-mismatch
 !                                                                *
 !% mpiexec -n 6 ax.out &                                         *
 !*****************************************************************
 !
-      program spin7
+      program spin37
       use, intrinsic :: iso_c_binding
 !
       include    'mpif.h'
@@ -274,7 +275,7 @@
       call mpi_finalize  (ierror)
 !
       stop
-      end program spin7
+      end program spin37
 !
 !
 !------------------------------------------------------------------------
@@ -4120,7 +4121,7 @@
       include    'param-spinRL6.h'
 !
       integer(C_INT) is
-      real(C_float) f(nhs),fmax,fmin
+      real(C_float) f(is),fmax,fmin
 !
       fmax= -1.e10
       fmin=  1.e10
