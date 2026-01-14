@@ -41,8 +41,8 @@ magnetite8.xyz: magnetite in a cubic lattice
 
 ## References
 
-1. R. Roy, D. Agrawal, J. Cheng, and S. Gedevanishvili,
-Nature, 399, 668 (1999).
+1. R. Roy, D. Agrawal, J. Cheng, and S. Gedevanishvili, Full sintering of powdered-metal bodies
+in a magnetic field, Nature, 399, 668 (1999).
 
 3. M. Tanaka, H. Kono, and K. Maruyama, Selective heating mechanism of magnetic
 metal oxides by a microwave magnetic field, Phys. Rev. B, 79, 104420 (2009).
