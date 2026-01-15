@@ -1,8 +1,8 @@
 # Praefix-String......................: SAI106
-# Maximum cpu time for this run..420..:   480.000000000000000
+# Maximum cpu time for this run..420..:   600.000000000000000
 # Physical end time (ps)..............: 12001.000000000000000
 # Diskretisierungs-Schritt (ps).......:     0.001000000000000
-# Write out interval for IWRT1..10.0..:     1.000000000000000 
+# Write out interval for IWRT1..10.0..:    10.000000000000000 
 # Write out interval for IWRT2........:  1000.000000000000000 
 # Box of fundamental domain xmax (Ang):     8.397000000
 # Box size: ymax (Ang)................:     8.397000000
