@@ -106,7 +106,7 @@
 !*   2. Spin dynamics                                            *
 !*     - should start from an energy-minimized state             *
 !*                                                               *
-!*    ds_i          2*Jij             g*mue_b                    *
+!*    ds_i          2*Jij             g*mue_B                    *
 !*   ------ = Sum_j ----- s_i x s_j + ------- s_i x Bw )         *
 !*     dt            hbar              hbar                      *
 !*                                                               *
@@ -114,7 +114,11 @@
 !*   For exchange interactions Jaa, Jbb and Jab, first and       *
 !*   second neighbors ( r < 4 A) are non-zero.                   *
 !*                                                               *
-!*   Default units: 1 Ang, 10 ps, 100 gauss                      *
+!*   Units:                                                      *  
+!*    t_unit= 1.d-12         ! ps                                *
+!*    a_unit= 1.d-8          ! Ang                               *
+!*    e_unit= 4.80325d-10    ! e                                 * 
+!*    m_unit= 1.67261d-24    ! m_H                               *
 !*                                                               *
 !*****************************************************************
 !*  To get a free format of f90/f03, convert f77 into:           *
@@ -125,7 +129,7 @@
 !*  Format statement is DIFFERENT in Fortran 2003.               *
 !*****************************************************************
 !  Parallel Fortran 2003:                                        *
-!% mpif90 -mcmodel=medium -fpic -o ax.out @spin_nucCLD7M6e.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
+!% mpif90 -mcmodel=medium -fpic -o ax.out @spin_nucCLD7M6a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
 ! Debian-13: -fallow-argument-mismatch
 !                                                                *
 !% mpiexec -n 6 ax.out &                                         *
@@ -339,10 +343,10 @@
                  n_of_j,np10,np100,ia,ja,ka,i1x,i2x,i1y,i2y,i1z,i2z, &
                  n_MCsteps,nt_p3m
 !
-      real(C_DOUBLE) t8,dt,dts,dt0,dth,bex,bey,bez,spin2,spin3,  &
-                 Jaa,Jbb,Jab,J00,b00,Bapx,Bapy,Bapz,bap,        &
+      real(C_DOUBLE) t8,dt,dts,dt0,dth,Bex,Bey,Bez,spin2,spin3,  &
+                 Jaa,Jbb,Jab,J00,B00,Bapx,Bapy,Bapz,Bap,        &
                  tau_b,tau_r,tau_diss,t_adv,fw,fw00,            &
-                 Temp,Tcurie,g,mue_b,hbar,KJoule,kcal,mol,kT,eV,&
+                 Temp,Tcurie,g,mue_B,hbar,KJoule,Kcal,mol,kT,eV,&
                  omg_b,rnd,                                     &
                  f1,g1,b1,prb,qsx,qsy,qsz,rsx,rsy,rsz,hh1,hh2,  &
                  qq,rqq,dthg,dthqq,rdiv,spmin,                  &
@@ -378,11 +382,11 @@
       common/ranfff/ ir0
       common/itera/  toler,itermax
 !
-      real(C_float) spinx,spinz,spin7,bextx,bextz,magx,magy,magz, &
+      real(C_float) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz, &
                     usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz,sum_mb,&
                     u_Fe,u_O,ds_Fe,ds_O,fdt4,vdt4,idt4,timeh,dtrhs
       real(C_float) sx1(3),sy1(3),sz1(3),sx2(3),sy2(3),sz2(3),sn1(3), &
-                    csx,csy,csz,axis(100),freq(100),t4,bex4,bez4, &
+                    csx,csy,csz,axis(100),freq(100),t4,Bex4,Bez4, &
                     spx4(np0),spy4(np0),spz4(np0),    &
                     ch4(np0),x4(np0),y4(np0),z4(np0), &
                     vx4(np0),vy4(np0),vz4(np0)
@@ -391,7 +395,7 @@
                     ssx,ssy,ssz,tht,phi,psi,bbw,tsz0,atsz,av_tsz(nhs), &
                     ub,um,ub1,um1,uu1(3),uu2(3),ranff,fdt8,vdt8,ds1,ds2
       common/ehist/ spinx(nhs),spinz(nhs),spin7(nhs), &
-                    bextx(nhs),bextz(nhs),magx(nhs),magy(nhs),magz(nhs),&
+                    Bextx(nhs),Bextz(nhs),magx(nhs),magy(nhs),magz(nhs),&
                     usys(nhs),conv(nhs),aitr(nhs),psdt(nhs),tfix(nhs),  &
                     uss(nhs),usb(nhs),tsx(nhs,3),tsy(nhs,3),tsz(nhs,3), &
                     sum_mb(nhs),u_Fe(nhs),u_O(nhs),ds_Fe(nhs),ds_O(nhs),&
@@ -494,7 +498,7 @@
         read(12) it,is,iwa,iwb,ir0
         read(12) np1,np2,spec,site,nintS,lintS,nintC,lintC,if_LJ
         read(12) i1,i2,i3,i4,disp_recv,cnt_recv,disp_recvC,cnt_recvC
-        read(12) spinx,spinz,spin7,bextx,bextz,magx,magy,magz,       &
+        read(12) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz,       &
                  usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz,sum_mb,&
                  u_Fe,u_O,fdt4,vdt4,idt4,timeh
         close(12)
@@ -539,9 +543,9 @@
       m_unit= 1.67261d-24    ! m_H
 !
       hbar = 6.62620d-27/(2.0d0*pi)  ! erg*sec
-      mue_b= 9.27410d-21         ! e*hbar/2mc
+      mue_B= 9.27410d-21         ! e*hbar/2mc
       KJoule  = 1.d10            ! erg
-      kcal= 4.1868d0 *KJoule     ! 4.18 J/cal
+      Kcal= 4.1868d0 *KJoule     ! 4.18 J/cal
       mol = 6.0220d23
 !
       g  = 2.0023d0
@@ -576,16 +580,16 @@
 !       if(rank.eq.0) write(11,*) ' J00(eV)=',J00
 !
       J00 = J00 * eV  ! unit in e_unit
-      b00 = 100.d0    ! unit: 100 gauss
+      B00 = 100.d0    ! unit: 100 gauss
 !
       f1 = J00 *t_unit/hbar
-      g1 = g*mue_b*b00 *t_unit/hbar
+      g1 = g*mue_B*B00 *t_unit/hbar
 !
-      bap= sqrt(Bapx**2 +Bapy**2 +Bapz**2)
-      b1= g*mue_b*b00 *bap  ! mue*b energy
+      Bap= sqrt(Bapx**2 +Bapy**2 +Bapz**2)
+      b1= g*mue_B*B00 *Bap  ! mue*B energy
 !
       tau_r= 0.d0
-      if(bap.ne.0) tau_r= 1.d12* pi2/((g*mue_b*(b00*bap))/hbar) ! ps
+      if(Bap.ne.0) tau_r= 1.d12* pi2/((g*mue_B*(B00*Bap))/hbar) ! in ps
       omg_b= pi2/tau_b
 !
       if(rank.eq.0) then
@@ -593,11 +597,11 @@
                     status='unknown',position='append',form='formatted')
 !
         write(11,'(" Tcurie=",f7.1,/," J00       =",1pd12.5)') Tcurie,J00
-        write(11,102) (J00*Jab)*spin2**2,b1*spin2,kT,omg_b
+        write(11,102) (J00*Jab)*spin2**2,b1*spin2,kT,omg_b,tau_b
   102   format(' Jab*s*s   = ',1pd12.5,/, &
                ' g*mub*s*b = ',  d12.5,/, &
                ' kT(erg)   = ',  d12.5,/, &
-               ' omg_b(/ps)= ',  d12.5,/)
+               ' omg_b (/ps), tau_b (ps)= ',2d12.5,/)
 !
         dtrhs= f1*Jab*sp2(1)**2*dt
         if(abs(dtrhs).gt.0.4d0) then
@@ -611,7 +615,7 @@
                /,'   tau_mw  = ',f10.2,  &
                /,'   tau_diss= ',f10.2,/)
 !
-        write(11,104) f1*Jab*sp2(1)**2,g1*bap*sp2(1)
+        write(11,104) f1*Jab*sp2(1)**2,g1*Bap*sp2(1)
   104   format('## RHS of spin equation (per t_unit/hbar)...',/, &
                '   J*si*sj = ',f10.6,/, &
                ' g*mue*b*s = ',f10.6,/)
@@ -900,11 +904,11 @@
       if(i.le.np1) then
         mass(i)= m_Fe
         ag(i)= rad_Fe
-        ep(i)= elj_Fe*(kcal/mol)/kT
+        ep(i)= elj_Fe*(Kcal/mol)/kT
       else
         mass(i)= m_O
         ag(i)= rad_O
-        ep(i)= elj_O*(kcal/mol)/kT
+        ep(i)= elj_O*(Kcal/mol)/kT
       end if
       end do
 !
@@ -1115,9 +1119,9 @@
 !
  2000 i_MC= 0
 !
-      bex= 0
-      bey= 0
-      bez= 0
+      Bex= 0
+      Bey= 0
+      Bez= 0
 !
       u= 1.d10
       iac1= 0
@@ -1145,7 +1149,7 @@
       if(MC_first) then
 !
         do 200 i= 1,np100
-        u1= u1 + b1 * (bex*spx00(i) +bey*spy00(i) +bez*spz00(i))
+        u1= u1 + b1 * (Bex*spx00(i) +Bey*spy00(i) +Bez*spz00(i))
 !
         do 210 l= 1,np10
         if(l.eq.i) go to 210
@@ -1175,7 +1179,7 @@
 !* Divided upon processors for a large system... (11/12/2010)
 !
         do 220 i= i1(rank),i2(rank)
-        u1= u1 + b1 * (bex*spx00(i) +bey*spy00(i) +bez*spz00(i))
+        u1= u1 + b1 * (Bex*spx00(i) +Bey*spy00(i) +Bez*spz00(i))
 !
         do 220 k= 1,nintS(i)
         l= lintS(k,i)
@@ -1219,7 +1223,7 @@
           call magnetiz (spx00,spy00,spz00,g,wx7,wy7,wz7,wn7,u1,uav7, &
                          wt7,np100,7)
 !                              +++
-          bbw= b00*bez
+          bbw= B00*Bez
 !
           if(rank.eq.0) then
             open (unit=11,file=praefixc//'.11'//suffix2, &
@@ -1310,19 +1314,19 @@
 !* Spin dynamics with dissipation
 !    start from an equilirated state ...
 !
-!    ds_i                 2*jij       g*mue_b
+!    ds_i                 2*jij       g*mue_B
 !   ------ = s_i x (sum_j ----- s_j - ------- be)
 !     dt                   hbar        hbar
 !
 !     f1= J00 *t_unit/hbar        J00= 10 meV
-!     g1= g*mue_b*b00 *t_unit/hbar   b00= 100 gauss
+!     g1= g*mue_B*B00 *t_unit/hbar   B00= 100 gauss
 !-----------------------------------------------------------
  3000 continue
-!                                         ***
+!                                           *****
       fw= fw00*(1.d0 -exp(-t8/tau_b)) * sin(omg_b*t8)  ! -m*b < 0
-      bex= Bapx*fw
-      bey= Bapy*fw
-      bez= Bapz*fw
+      Bex= Bapx*fw
+      Bey= Bapy*fw
+      Bez= Bapz*fw
 !
       iter= 0
   400 iter= iter +1
@@ -1364,12 +1368,12 @@
       qsz= qsz +f1*j_ki*(spz1(j) +spz(j))
   320 continue !   f1*j_ij * 2s
 !
-!* Equation is: ds_i/dt= s_i*q/hbar -(s_i-s_i0)/tau
-!                 q= sum_j (2*jij*s_j) -g*mue_b*b
+!* Equation is: ds_i/dt= s_i*qq/hbar -(s_i-s_i0)/tau,
+!                where qq= sum_j (2*Jij*s_j) -g*mue_B*B
 !
-      qsx= qsx -g1*bex
-      qsy= qsy -g1*bey
-      qsz= qsz -g1*bez
+      qsx= qsx -g1*Bex
+      qsy= qsy -g1*Bey
+      qsz= qsz -g1*Bez
 !
 !* RHS
       hh2= dth/tau_diss
@@ -1629,7 +1633,7 @@
       um1= 0
 !
       do 590 i= i1(rank),i2(rank)
-      ub1= ub1 + b1 * (bex*spx(i) +bey*spy(i) +bez*spz(i))
+      ub1= ub1 + b1 * (Bex*spx(i) +Bey*spy(i) +Bez*spz(i))
 !
       do 590 k= 1,nintS(i)
       j= lintS(k,i)
@@ -1677,7 +1681,7 @@
       if(iwrt1.eq.0) then
         ss= 0
         do 735 i= 1,np1
-        ss= ss +spx(i)*bex +spy(i)*bey +spz(i)*bez  ! bez= bz/b00
+        ss= ss +spx(i)*Bex +spy(i)*Bey +spz(i)*Bez  ! Bez= bz/B00
   735   continue
 !
         del_en= del_en - g*ss/np1
@@ -1750,13 +1754,13 @@
   737   continue
   738   continue
 !
-        bextx(is)= b00*bex
-        bextz(is)= b00*bez
+        Bextx(is)= B00*Bex
+        Bextz(is)= B00*Bez
 !                                        ! ic= 7: get average
         call magnetiz (spx,spy,spz,g,wx1,wy1,wz1,wn1,u1,uav,wt1,np1,7)
 !
-        magx(is)= wx1  ! m= -g*mue_b*s
-        magy(is)= wy1  ! u= -m dot b = g*mue_b s*b 
+        magx(is)= wx1  ! m= -g*mue_B*s
+        magy(is)= wy1  ! u= -m dot b = g*mue_B s*b 
         magz(is)= wz1
 !
 !
@@ -1795,8 +1799,8 @@
         e_LJ  = e_LJ/np1
 !
         t4 = t8
-        bex4= b00*bex
-        bez4= b00*bez
+        Bex4= B00*Bex
+        Bez4= B00*Bez
 !
 !--------------------
 !* Spin Temperature
@@ -1869,7 +1873,7 @@
           write(11,*)
         end if
 !
-        bbw= b00 * bez
+        bbw= B00 * Bez
         fdt4(is)= fdt8/vth_O
         vdt4(is)= vdt8
         idt4(is)= ifdt
@@ -1914,7 +1918,7 @@
         write(12) it,is,iwa,iwb,ir0
         write(12) np1,np2,spec,site,nintS,lintS,nintC,lintC,if_LJ
         write(12) i1,i2,i3,i4,disp_recv,cnt_recv,disp_recvC,cnt_recvC
-        write(12) spinx,spinz,spin7,bextx,bextz,magx,magy,magz, &
+        write(12) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz, &
                   usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz,sum_mb, &
                   u_Fe,u_O,fdt4,vdt4,idt4,timeh
         close(12)
@@ -3192,7 +3196,7 @@
       wt= wt +1
 !
       if(ic.lt.0 .or. ic.eq.7) then
-        wx= -g*wx/wn   ! in mue_b unit
+        wx= -g*wx/wn   ! in mue_B unit
         wy= -g*wy/wn
         wz= -g*wz/wn
         uav= uav/wt
@@ -3481,15 +3485,15 @@
       call values (9.0,14.4,hh,qab4,0.,101)
 !
       Temp4= Temp
-      bext4= sqrt(Bapx**2 +Bapy**2 +Bapz**2)
+      Bext4= sqrt(Bapx**2 +Bapy**2 +Bapz**2)  ! 100 gauss
       call symbol (13.0,16.0,hh,'Temp=', 0.,5)
       call values (15.0,16.0,hh,Temp4,0.,101)
       call symbol (13.0,15.2,hh,'Bapp=', 0.,5)
-      call values (15.0,15.2,hh,bext4,0.,101)
+      call values (15.0,15.2,hh,Bext4,0.,101)
 !
 !     xleng4= xleng4
       dt4 = dt
-      tau4= tau_b
+      tau4= tau_b    !<-- 400 ps
       tau_diss4= tau_diss
 !     call symbol (19.0,16.0,hh,'Leng=', 0.,5)
 !     call values (21.0,16.0,hh,xleng4,0.,101)
@@ -3757,14 +3761,14 @@
 !
       include       'param-spinRL6.h'
 !
-      real(C_float) spinx,spinz,spin7,bextx,bextz,magx,magy,magz, &
+      real(C_float) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz, &
                     usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz, &
                     sum_mb,u_Fe,u_O,ds_Fe,ds_O,fdt4,vdt4,idt4,timeh,&
-                    cosd,sind,chi_real,chi_imag,b00,Bmw, &
-                    mue_b,hh,av_mz(nhs),amz,ss,s2,       &
+                    cosd,sind,chi_real,chi_imag,B00,Bmw, &
+                    mue_B,hh,av_mz(nhs),amz,ss,s2,       &
                     emax,emin,emax1,emax2,emax3,emin1,emin2,emin3
       common/ehist/ spinx(nhs),spinz(nhs),spin7(nhs), &
-                    bextx(nhs),bextz(nhs),magx(nhs),magy(nhs),magz(nhs),&
+                    Bextx(nhs),Bextz(nhs),magx(nhs),magy(nhs),magz(nhs),&
                     usys(nhs),conv(nhs),aitr(nhs),psdt(nhs),tfix(nhs),  &
                     uss(nhs),usb(nhs),tsx(nhs,3),tsy(nhs,3),tsz(nhs,3), &
                     sum_mb(nhs),u_Fe(nhs),u_O(nhs),ds_Fe(nhs),ds_O(nhs),&
@@ -3817,20 +3821,20 @@
       ns= 0
 !
       do 200 k= is0,is-40
-      ss= ss +(magz(k) -av_mz(k))*bextz(k)   ! magz= -g*<sz>
+      ss= ss +(magz(k) -av_mz(k))*Bextz(k)   ! magz= -g*<sz>
       s2= s2 +(magz(k) -av_mz(k))**2         ! <dm**2>
       ns= ns +1
   200 continue
 !
-      mue_b= 9.27410e-21   ! e*hbar/2mc
-      b00= 100             ! gauss
-      Bmw= b00*sqrt(Bapx**2 +Bapy**2 +Bapz**2)
+      mue_B= 9.27410e-21   ! e*hbar/2mc
+      B00= 100             ! gauss
+      Bmw= B00*sqrt(Bapx**2 +Bapy**2 +Bapz**2)
 !
       amz= sqrt(2*s2/ns)
 !
       if(Bmw.gt.1.d-5) then
-        chi_real= mue_b*amz/Bmw
-        chi_imag= 2*(mue_b*b00*ss/ns)/Bmw**2
+        chi_real= mue_B*amz/Bmw
+        chi_imag= 2*(mue_B*B00*ss/ns)/Bmw**2
 !
         write(11,731) is,amz,chi_real,chi_imag
   731   format('Magnetic susceptibility...', &
@@ -3877,17 +3881,17 @@
       call lplot1 (2,4,is,timeh,usys,emax,emin,ILN,nxtick,nytick,&
                    'usys    ',8,'        ',8,'        ',8,0)
 !
-      call lplmax (bextx,emax,emin,is)
+      call lplmax (Bextx,emax,emin,is)
       emax = amax1(emax,-emin)
       emin = -emax
-      call lplot1 (2,5,is,timeh,bextx,emax,emin,ILN,nxtick,nytick,&
-                   'bextx.7 ',8,'        ',8,'        ',8,0)
+      call lplot1 (2,5,is,timeh,Bextx,emax,emin,ILN,nxtick,nytick,&
+                   'Bextx.7 ',8,'        ',8,'        ',8,0)
 !
-      call lplmax (bextz,emax,emin,is)
+      call lplmax (Bextz,emax,emin,is)
       emax = amax1(emax,-emin)
       emin = -emax
-      call lplot1 (2,6,is,timeh,bextz,emax,emin,ILN,nxtick,nytick,&
-                   'bextz.7 ',8,'  time  ',8,'        ',8,0)
+      call lplot1 (2,6,is,timeh,Bextz,emax,emin,ILN,nxtick,nytick,&
+                   'Bextz.7 ',8,'  time  ',8,'        ',8,0)
 !
       call lplmax (uss,emax,emin,is)
       call lplot1 (3,4,is,timeh,uss,emax,emin,ILN,nxtick,nytick,&
