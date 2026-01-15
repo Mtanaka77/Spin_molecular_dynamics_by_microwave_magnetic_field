@@ -4,7 +4,7 @@
 
 Sintering by initial experiments (R. Roy et. al., Nature, 1999), Ref.1.  
 
-Theory of showing unpaired 3d electron spins of Fe(3+) and Fe(2+) to increase 
+Theory of identifying unpaired 3d electron spins of Fe(3+) and Fe(2+) to increase 
 above the Curie temperature (M. Tanaka et al., Phys. Rev. B, 2009), Ref.2.  
 
 
