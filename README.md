@@ -4,8 +4,8 @@
 
 Sintering by experiments (R. Roy et. al., Nature, 1999), Ref.1.  
 
-Theory identifying unpaired 3d electron spins to increase above 
-Curie temperature (M. Tanaka et al., Phys. Rev. B, 2009), Ref.2.  
+Theory of unpaired 3d electron spins to increase above 
+the Curie temperature (M. Tanaka et al., Phys. Rev. B, 2009), Ref.2.  
 
 
 ## Simulation Procedure
