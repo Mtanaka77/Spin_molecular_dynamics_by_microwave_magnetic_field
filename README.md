@@ -10,22 +10,20 @@ Curie temperature (M. Tanaka et al., Phys. Rev. B, 2009), Ref.2.
 
 ## Simulation Procedure
 
-Electron spins moving of Fe(3+), Fe(2+) and O(2-) in cubic cells
+Electron spins of Fe(3+), Fe(2+) and O(2-) in cubic cells
 
 Microwaves of giga-Hertz frequency
 
 Dissipated spin molecular dynamics simulation 
 
-  > Execution of about 10,000,000 steps of $ Delta t= 0.001 $ ps
+  > Execution of a few 1,000,000 steps of $ Delta t= 0.001 $ ps
 
-  > Metropolis criterion for the next step: accept/reject
-
-
+  > Metropolis criterion to accept/reject for the next steps
 
 
 ## Numerical Code, Parameters and Files
 
-@spin_nucCLD7M6.f03: numerical code
+@spin_nucCLD7M6a.f03: numerical code
 
 param_spinRL6.h: parameters 
 
@@ -33,9 +31,9 @@ param_spinRL6.h: parameters
   
 SAI106_config.START1: configuration
 
- > physical run time, lattice size, number of cells, exchange integrals for Fe and O,
+ > physical run time, lattice sizes, number of cells, exchange integrals for Fe and O,
   period of microwave magnetic field, temperature, Curie temprature, etc.
-  About 5,000,000 steps are required !
+  About 3,000,000 steps are required !
 
 magnetite8.xyz: magnetite in a cubic lattice
 
