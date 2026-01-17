@@ -165,7 +165,7 @@
       label  = 'sp3_nucl'
       nt_p3m =  5   ! in every 5 steps
 !  -------------------------------------------------
-      mx= meshx     !<<- param.h
+      mx= meshx     !<<- param-spinRL5.h
       my= meshy
       mz= meshz
 !  -------------------------------------------------
