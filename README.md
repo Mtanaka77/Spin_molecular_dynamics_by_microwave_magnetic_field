@@ -14,11 +14,11 @@ Electron spins of Fe(3+), Fe(2+) and O(2-) in cubic cells
 
 Microwaves of giga-Hertz frequency, like 2.5 GHz
 
-Dissipation spin molecular dynamics simulation 
+Metropolis criterion is used to accept/reject in the MC step
+
+Dissipation spin molecular dynamics simulation in the MD step 
 
   > Execution of a few 1,000,000 steps of $ Delta t= 0.001 $ ps
-
-Metropolis criterion is used to accept/reject in the next steps
 
 
 ## Numerical Code, Parameters and Files
