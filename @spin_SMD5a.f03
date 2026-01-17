@@ -471,8 +471,6 @@
           close (11)
         end if
 !
-!% mpif90 -mcmodel=medium -fpic -o a.out @spin_SMD5a.f03 -I/opt/fftw-3.3.10/include -L/opt/fftw-3.3.10/lib -lfftw3 &> log
-!% mpiexec -n 5 a.out & 
 !
         open (unit=12,file=praefixi//'.12'//suffix1, & ! Only suffix1
                                    status='old',form='unformatted')
@@ -3617,31 +3615,35 @@
 !
 !
 !-----------------------------------------------------------
-      subroutine distr_spin (spx,spy,spz,spec,site,np)
+      subroutine distr_spin (spx,spy,spz,spec,site,np1)
 !-----------------------------------------------------------
       use, intrinsic :: iso_c_binding
-      include   'param-spinRL5.h'
+      implicit none
+      include  'param-spinRL5.h'
 !
+      integer(C_INT) spec(np0),site(np0),np1,ir,ILN,ILG,i,k,      &
+                     nxtick,nytick
       real(C_DOUBLE) spx(np0),spy(np0),spz(np0),ss
       real(C_float)  ang1x(101),ang2x(101),ang1y(101),ang2y(101), &
-                 ang1z(101),ang2z(101),hha(101),  &
-                 angax(101),angay(101),angaz(101)
-      integer(C_INT) spec(np0),site(np0),np,ir
+                     ang1z(101),ang2z(101),angax(101),angay(101), &
+                     angaz(101),hha(101),costhx,costhy,costhz,    &
+                     famax1,famin1,famax2,famin2,famax3,famin3,   &
+                     famax,famin
 !
       do 100 k= 1,101
-      ang1x(k)= 0.
-      ang2x(k)= 0.
-      ang1y(k)= 0.
-      ang2y(k)= 0.
-      ang1z(k)= 0.
-      ang2z(k)= 0.
-      angax(k)= 0.
-      angay(k)= 0.
-      angaz(k)= 0.
-      hha(k)= (k-51)/50.
+      ang1x(k)= 0
+      ang2x(k)= 0
+      ang1y(k)= 0
+      ang2y(k)= 0
+      ang1z(k)= 0
+      ang2z(k)= 0
+      angax(k)= 0
+      angay(k)= 0
+      angaz(k)= 0
+      hha(k)= (k-51)/50.e0
   100 continue
 !
-      do 200 i= 1,np
+      do 200 i= 1,np1
       ss= sqrt(spx(i)**2+spy(i)**2+spz(i)**2)
 !
       costhx= spx(i)/ss
@@ -3651,10 +3653,10 @@
       ir= 50.*(costhx +1.) +1.01
       if(ir.gt.0 .and. ir.lt.101) then
         if(site(i).eq.1) then
-          angax(ir)= angax(ir) +1.                    ! a:3+
+          angax(ir)= angax(ir) +1.                    ! A:3+
         else
-          if(spec(i).eq.1) ang1x(ir)= ang1x(ir) +1.   ! b:3+
-          if(spec(i).eq.2) ang2x(ir)= ang2x(ir) +1.   ! b:2+
+          if(spec(i).eq.1) ang1x(ir)= ang1x(ir) +1.   ! B:3+
+          if(spec(i).eq.2) ang2x(ir)= ang2x(ir) +1.   ! B:2+
         end if
       end if
 !
@@ -3679,29 +3681,40 @@
       end if
   200 continue
 !
-      ILN= -1
-      ILG= 2
-      call lplmax (ang1x,famax1,famin,101)
-      call lplmax (ang2x,famax2,famin,101)
+!                                                                *
+      ILN=  1
+      ILG=  2
+      call lplmax (ang1x,famax1,famin1,101)
+      call lplmax (ang2x,famax2,famin2,101)
       famax= amax1(famax1,famax2)
+      famin= amin1(famin1,famin2)
+!
+        OPEN (unit=11,file=praefixc//'.11'//suffix2, &
+                status='unknown',position='append',form='formatted')
+!
+        write(11,932) famax1,famax2,famin1,famin2
+  932   format('max,min=',1p4e11.2)
+!
+        close (11)
+!
       nxtick= 3
       nytick= 3
       call hplot1 (2,2,101,hha,ang1x,famax,famin,ILN,nxtick,nytick,&
-                     '        ',8,'cos(thx)',8,' (3 b   ',8,0)
+                     '        ',8,'cos(thx)',8,' (3 B   ',8,0)
       call hplot1 (2,2,101,hha,angax,famax,famin,ILN,nxtick,nytick,&
-                     '        ',8,'cos(thx)',8,' (3a    ',8,1)
+                     '        ',8,'cos(thx)',8,' (3A    ',8,1)
       call hplot1 (2,3,101,hha,ang2x,famax,famin,ILN,nxtick,nytick,&
-                     '        ',8,'cos(thx)',8,' (2b)   ',8,0)
+                     '        ',8,'cos(thx)',8,' (2B)   ',8,0)
 !
       call lplmax (ang1y,famax1,famin,101)
       call lplmax (ang2y,famax2,famin,101)
       famax= amax1(famax1,famax2)
       call hplot1 (3,2,101,hha,ang1y,famax,famin,ILN,nxtick,nytick,&
-                     '        ',8,'cos(thy)',8,' (3 b   ',8,0)
+                     '        ',8,'cos(thy)',8,' (3 B   ',8,0)
       call hplot1 (3,2,101,hha,angay,famax,famin,ILN,nxtick,nytick,&
-                     '        ',8,'cos(thy)',8,' (3a    ',8,1)
+                     '        ',8,'cos(thy)',8,' (3A    ',8,1)
       call hplot1 (3,3,101,hha,ang2y,famax,famin,ILN,nxtick,nytick,&
-                     '        ',8,'cos(thy)',8,' (2b)   ',8,0)
+                     '        ',8,'cos(thy)',8,' (2B)   ',8,0)
 !---------------------
       call chart
 !---------------------
@@ -3710,11 +3723,11 @@
       call lplmax (ang2z,famax2,famin,101)
       famax= amax1(famax1,famax2)
       call hplot1 (2,2,101,hha,ang1z,famax,famin,ILN,nxtick,nytick,&
-                     '        ',8,'cos(thz)',8,' (3 b   ',8,0)
+                     '        ',8,'cos(thz)',8,' (3 B   ',8,0)
       call hplot1 (2,2,101,hha,angaz,famax,famin,ILN,nxtick,nytick,&
-                     '        ',8,'cos(thz)',8,' (3a    ',8,1)
+                     '        ',8,'cos(thz)',8,' (3A    ',8,1)
       call hplot1 (2,3,101,hha,ang2z,famax,famin,ILN,nxtick,nytick,&
-                     '        ',8,'cos(thz)',8,' (2b)   ',8,0)
+                     '        ',8,'cos(thz)',8,' (2B)   ',8,0)
 !---------------------
       call chart
 !---------------------
@@ -3726,8 +3739,11 @@
       subroutine plot_disp (axis,freq,modes,plot_ch)
 !------------------------------------------------------
       use, intrinsic :: iso_c_binding
-      real(C_float) axis(100),freq(100)
-      character*8  plot_ch
+      implicit none
+!
+      integer(C_INT) modes,ILN,nxtick,nytick
+      real(C_float) axis(100),freq(100),emax,emin
+      character*8   plot_ch
 !
       ILN= 1
       nxtick= 4
@@ -3749,8 +3765,7 @@
 !------------------------------------------------------
       use, intrinsic :: iso_c_binding
       implicit      none
-!
-      include       'param-spinRL5.h'
+      include      'param-spinRL5.h'
 !
       real(C_float) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz, &
                     usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz, &
@@ -4345,7 +4360,8 @@
       go to 1
 !
 !-----------------------------------------------------------------------
-      entry hplot1 (ix,iy,npt1,x,y,ymax,ymin,IL,lab1,n1,lab2,n2,lab3,n3)
+      entry hplot1 (ix,iy,npt1,x,y,ymax,ymin,IL,nxtick,nytick,  &
+                    lab1,n1,lab2,n2,lab3,n3,iskip)
 !-----------------------------------------------------------------------
       iplot=2
 !
