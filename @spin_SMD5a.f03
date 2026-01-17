@@ -3755,8 +3755,7 @@
       real(C_float) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz, &
                     usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz, &
                     sum_mb,u_Fe,u_O,ds_Fe,ds_O,fdt4,vdt4,idt4,timeh,&
-                    cosd,sind,chi_real,chi_imag,B00,Bmw, &
-                    mue_B,hh,av_mz(nhs),amz,ss,s2,       &
+                    cosd,sind,B00,Bmw,mue_B,hh,av_mz(nhs),ss,s2,  &
                     emax,emin,emax1,emax2,emax3,emin1,emin2,emin3
       common/ehist/ spinx(nhs),spinz(nhs),spin7(nhs), &
                     Bextx(nhs),Bextz(nhs),magx(nhs),magy(nhs),magz(nhs),&
@@ -3821,22 +3820,6 @@
       B00= 100             ! gauss
       Bmw= B00*sqrt(Bapx**2 +Bapy**2 +Bapz**2)
 !
-      amz= sqrt(2*s2/ns)
-!
-      if(Bmw.gt.1.d-5 .and. is.gt.40) then
-        chi_real= mue_B*amz/Bmw
-        chi_imag= 2*(mue_B*B00*ss/ns)/Bmw**2
-!
-        write(11,731) is,amz,chi_real,chi_imag
-  731   format('Magnetic susceptibility...', &
-               '   is, <mz> =',i5,f8.3,/,    &
-               '   chi_r, chi_i=',1p2d11.3,/)
-      else
-        write(11,*) 'Magnetic susceptibility is not'
-        write(11,*) ' calculated as Bmw= 0 or is<40 ......'
-      end if
-!
-!
       call lplmax (magx,emax1,emin1,is)
       call lplmax (magy,emax2,emin2,is)
       call lplmax (magz,emax3,emin3,is)
@@ -3897,14 +3880,6 @@
       call lplmax (usb,emax,emin,is)
       call lplot1 (3,5,is,timeh,usb,emax,emin,ILN,nxtick,nytick,&
                    ' us*b   ',8,'        ',8,'        ',8,0)
-!
-      call symbol (18.5,3.8,hh,'del.mz= ', 0.,8)
-      call values (22.0,3.8,hh,amz,0.,101)
-!
-      call symbol (18.5,2.8,hh,'re_chi= ', 0.,8)
-      call values (22.0,2.8,hh,chi_real,0.,101)
-      call symbol (18.5,2.1,hh,'im_chi= ', 0.,8)
-      call values (22.0,2.1,hh,chi_imag,0.,101)
 !------------------------
       call chart
 !------------------------
