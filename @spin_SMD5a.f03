@@ -2,14 +2,14 @@
 !*                                                               *
 !*   ### Dissipative Spin Molecular Dynamics Simulation ###      * 
 !*                                                               *
-!*      Numerical code by:                                       *
+!*      Numerical simulation code by:                            *
 !*        Author: Motohiko Tanaka, PhD, Chikusa,Nagoya,Japan.    *
 !*        https://github.com/Mtanaka77/                          *
 !*                                                               *
-!*       @spin_SMD5a.f03: Numerical code                         *
-!*       param-spinRL5.h: Basic parameters                       *
-!*       SAI105_config.START1: Configuration file                *
-!*       magnetite8.xyz:  Initial xyz file                       * 
+!*        @spin_SMD5a.f03: Simulation code                       *
+!*        param-spinRL5.h: Basic parameters                      *
+!*        SAI105_config.START1: Configuration file               *
+!*        magnetite8.xyz:  Initial xyz file                      * 
 !*                                                               *
 !*   Spin dynamics under the microwave H field for electrons,    *
 !*   while nuclei feel forces from spins, Neighboring nuclei     * 
@@ -48,13 +48,13 @@
 !
 !*****************************************************************
 !*                                                               *
-!*   Step 1: MC for equilibration at given T & B= 0.             *
+!*   Step 1: MC for equilibration at given T and B= 0.           *
 !*   Step 2: MD (spin and nuclei dynamics)                       *
 !*                                                               *
-!*   If kstart= 0, MC is follwed by MD.                          *
+!*   In kstart= 0 of MC procedures, it is followed by MD steps.  *
 !*      kstart > 0 using FT12 data                               *
 !*---------------------------------------------------------------*
-!*  >>NOTE for x()                                               *
+!*  >>NOTE for Fe and O:                                         *
 !*                                                               *
 !*       1  2 ... np1 ... np= np1+np2                            *
 !*    1  Fe Fe Fe Fe  O   O                                      *
@@ -129,10 +129,10 @@
 !*  Format statement is DIFFERENT in Fortran 2003.               *
 !*****************************************************************
 !  Parallel Fortran 2003:                                        *
-!% mpif90 -mcmodel=medium -fpic -o ax.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
+!% mpif90 -mcmodel=medium -fpic -o a.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
 ! Debian-13: -fallow-argument-mismatch
 !                                                                *
-!% mpiexec -n 5 ax.out &                                         *
+!% mpiexec -n 5 a.out &                                         *
 !*****************************************************************
 !
       program spin37
@@ -335,8 +335,8 @@
                  nintS(np0),lintS(nbx,np0),nintC(np0),lintC(nbx,np0), &
                  if_LJ(np0),spec(np0),site(np0)
 !
-      integer(C_INT) nlist(np0),lmax,k0,iac1,iac2,irej,modes,kwrite, &
-                 n_of_j,np10,np100,ia,ja,ka,i1x,i2x,i1y,i2y,i1z,i2z, &
+      integer(C_INT) nlist(np0),lmax,k0,iac1,iac2,irej,modes,kwrite,  &
+                 n_of_j,np000,np100,ia,ja,ka,i1x,i2x,i1y,i2y,i1z,i2z, &
                  n_MCsteps,nt_p3m
 !
       real(C_DOUBLE) t8,dt,dts,dt0,dth,Bex,Bey,Bez,spin2,spin3, &
@@ -346,12 +346,12 @@
                  omg_b,rnd,                                     &
                  f1,g1,b1,prb,qsx,qsy,qsz,rsx,rsy,rsz,hh1,hh2,  &
                  qq,rqq,dthg,dthqq,rdiv,spmin,                  &
-                 alp,xx,yy,zz,rr,rr0,toler,deps,usys8(nhs),     &
+                 alp,xx,yy,zz,rr,rr0,toler,deps,Usys8(nhs),     &
                  ss,smax,sav,t_unit,e_unit,a_unit,m_unit,m_Fe,m_O, &
                  pi,pi2,th,ph,tmax,tmax0,cptot,unif1(2),unif2(2),  &
                  xleng0,yleng0,zleng0,sss,rlist(np0),           &
                  buffer1(4),buffer2(4),del_en,wtime,            &
-                 fc3,j_ki,wfdt,vth0,vth_O,vth_Fe,vth,           &
+                 fc3,J_ki,wfdt,vth0,vth_O,vth_Fe,vth,           &
                  svx,svy,svz,sqrt2,vmax1,dgaus2,vsq1,vsq2,      &
                  vx1,vy1,vz1,mas,e_sp,e_c_r,e_LJ,e_Coulomb_p3m
 !
@@ -379,8 +379,8 @@
       common/itera/  toler,itermax
 !
       real(C_float) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz, &
-                    usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz,sum_mb,&
-                    u_Fe,u_O,ds_Fe,ds_O,fdt4,vdt4,idt4,timeh,dtrhs
+                    Usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz,sum_mb,&
+                    U_Fe,U_O,ds_Fe,ds_O,fdt4,vdt4,idt4,timeh,dtrhs
       real(C_float) sx1(3),sy1(3),sz1(3),sx2(3),sy2(3),sz2(3),sn1(3), &
                     csx,csy,csz,axis(100),freq(100),t4,Bex4,Bez4, &
                     spx4(np0),spy4(np0),spz4(np0),    &
@@ -392,9 +392,9 @@
                     ub,um,ub1,um1,uu1(3),uu2(3),ranff,fdt8,vdt8,ds1,ds2
       common/ehist/ spinx(nhs),spinz(nhs),spin7(nhs),                   &
                     Bextx(nhs),Bextz(nhs),magx(nhs),magy(nhs),magz(nhs),&
-                    usys(nhs),conv(nhs),aitr(nhs),psdt(nhs),tfix(nhs),  &
+                    Usys(nhs),conv(nhs),aitr(nhs),psdt(nhs),tfix(nhs),  &
                     uss(nhs),usb(nhs),tsx(nhs,3),tsy(nhs,3),tsz(nhs,3), &
-                    sum_mb(nhs),u_Fe(nhs),u_O(nhs),ds_Fe(nhs),ds_O(nhs),&
+                    sum_mb(nhs),U_Fe(nhs),U_O(nhs),ds_Fe(nhs),ds_O(nhs),&
                     fdt4(nhs),vdt4(nhs),idt4(nhs),timeh(nhs)
       logical       MC_first,ft06_start
       data          MC_first/.true./,ft06_start/.true./
@@ -444,8 +444,8 @@
 !
 ! xleng is expanded and redeined in "init"
 !
-        call init (x,y,z,ch,spx,spy,spz,sp2,spec,site, &
-                   xleng0,yleng0,zleng0,np1,np2,np10,  &
+        call init (x,y,z,ch,spx,spy,spz,sp2,spec,site,  &
+                   xleng0,yleng0,zleng0,np1,np2,np000,  & !<- np000
                    i1x,i2x,i1y,i2y,i1z,i2z,rank,size)
 !
         do i= 1,np1+np2
@@ -455,7 +455,7 @@
         end do
 !
         if(np1+np2.gt.np0) then
-          write(06,*) ' # Stop: np > np0...'
+          write(06,*) ' # Stop: np > np0...',np1,np2,np0
           return
         end if
 !
@@ -493,8 +493,8 @@
         read(12) np1,np2,spec,site,nintS,lintS,nintC,lintC,if_LJ
         read(12) i1,i2,i3,i4,disp_recv,cnt_recv,disp_recvC,cnt_recvC
         read(12) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz,       &
-                 usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz,sum_mb,&
-                 u_Fe,u_O,fdt4,vdt4,idt4,timeh
+                 Usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz,sum_mb,&
+                 U_Fe,U_O,fdt4,vdt4,idt4,timeh
         close(12)
 !
 !    # Change READ_CONF #
@@ -1056,11 +1056,12 @@
 !
 !  kstart= 0
         if(MC_first) then   ! Organize a seed one cell
-          np100= np10       ! one cell
+          np100= np000      ! One cell - np000 
           nstep_MC = 50001
           kwrite   = 10000
+!
         else                ! Initialize a large system with the organized seed cell
-          np100= np1        ! all
+          np100= np1+np2    ! all atoms
           nstep_MC = n_MCsteps  ! 1000001 
           kwrite   =   50000    !   50000
         end if
@@ -1093,9 +1094,8 @@
 !  kstart= 1
 !  +++++++++
         if(it.eq.1) then
-          call magnetiz (spx,spy,spz,g,wx7,wy7,wz7,wn7,u1,uav7, &
-                         wt7,np1,-1)
-!
+          call magnetiz (spx,spy,spz,g,wx7,wy7,wz7,wn7,u1,uav7,wt7,np1,-1)
+!                                              +++                    +-1
 !* Sign of magnetic field is defined here
 !
           if(wz7.gt.0) then
@@ -1147,7 +1147,7 @@
         do 200 i= 1,np100
         u1= u1 + b1 * (Bex*spx00(i) +Bey*spy00(i) +Bez*spz00(i))
 !
-        do 210 l= 1,np10
+        do 210 l= 1,np000   !<<-- np000 
         if(l.eq.i) go to 210
 !
         xx= x(i)-x(l)
@@ -1203,6 +1203,7 @@
         if(prb.gt.ranff(0.d0)) then
           iac2= iac2 +1
           u= u1                   ! <-- keep this energy
+!
         else
           irej= irej +1           ! Reject the trial flip and
           spx00(j)= spx0(j)       ! restore the spin
@@ -1212,14 +1213,12 @@
       end if
 !                          
 
-      if(rank.eq.0) then
-        call magnetiz (spx00,spy00,spz00,g,wx7,wy7,wz7,wn7,u1,uav7, &
-                       wt7,np100,1)
-!                            +++
-        if(mod(i_MC,kwrite).eq.1) then
-          call magnetiz (spx00,spy00,spz00,g,wx7,wy7,wz7,wn7,u1,uav7, &
-                         wt7,np100,7)
-!                              +++
+      if(rank.eq.0) then  !                                          Add
+        call magnetiz (spx00,spy00,spz00,g,wx7,wy7,wz7,wn7,u1,uav7,wt7,np100,1)
+!                                                                      +++++ 1
+        if(mod(i_MC,kwrite).eq.1) then  !                              Average                
+          call magnetiz (spx00,spy00,spz00,g,wx7,wy7,wz7,wn7,u1,uav7,wt7,np100,7)
+!                                                                        +++++ 7
           bbw= B00*Bez
 !
           if(rank.eq.0) then
@@ -1232,10 +1231,9 @@
                     1p2d11.3,' bz=',d9.2,' <m>=',0p3f6.2)
             close (11)
           end if
-!
-          call magnetiz (spx00,spy00,spz00,g,wx7,wy7,wz7,wn7,u1,uav7, &
-                         wt7,np100,0)
-!                              +++
+!                                                                      Reset
+          call magnetiz (spx00,spy00,spz00,g,wx7,wy7,wz7,wn7,u1,uav7,wt7,np100,0)
+!                                                                        +++++ 0
         end if
       end if
 !                <- 2300: 114 lines above          
@@ -1258,7 +1256,7 @@
            mod(ka,3).eq.0) then
 !
 ! Seed cell
-          do 240 l= 1,np10
+          do 240 l= 1,np000  !<<--- np000 
           i= i +1
           spx(i)= spx00(l)  ! spx() are used in MD
           spy(i)= spy00(l)
@@ -1266,7 +1264,8 @@
   240     continue
 !
         else
-          do 243 l= 1,np10
+!!        do 243 l= 1,np10
+          do 243 l= 1,np000
           i= i +1
 !
 ! To avoid always being s=0... 11/23/2010
@@ -1284,7 +1283,7 @@
           open (unit=11,file=praefixc//'.11'//suffix2, &
                     status='unknown',position='append',form='formatted')
 !
-          write(11,*) 'np1, np10*cells=',np1,i
+          write(11,*) 'np1, np000*cells=',np1,i
           close (11)
         end if
 !
@@ -1322,7 +1321,7 @@
  3000 continue
 !                                           *****
       fw= fw00*(1.d0 -exp(-t8/tau_b)) * sin(omg_b*t8)  ! -m*b < 0
-      Bex= Bapx*fw
+      Bex= Bapx*fw  ! Bapx * sin(omg_b*t)
       Bey= Bapy*fw
       Bez= Bapz*fw
 !
@@ -1359,12 +1358,12 @@
       zz= zz -nint(zz/zleng)*zleng
 !
       rr = sqrt(xx**2 +yy**2 +zz**2)
-      j_ki= Jint(k,i)*(r_ij(k,i)/rr)**n_of_j
+      J_ki= Jint(k,i)*(r_ij(k,i)/rr)**n_of_j
 !
-      qsx= qsx +f1*j_ki*(spx1(j) +spx(j))
-      qsy= qsy +f1*j_ki*(spy1(j) +spy(j))
-      qsz= qsz +f1*j_ki*(spz1(j) +spz(j))
-  320 continue !   f1*j_ij * 2s
+      qsx= qsx +f1*J_ki*(spx1(j) +spx(j))
+      qsy= qsy +f1*J_ki*(spy1(j) +spy(j))
+      qsz= qsz +f1*J_ki*(spz1(j) +spz(j))
+  320 continue !   f1*J_ki * (s_1 +s)
 !
 !*********************************************************
 !* Equation: ds_i/dt= s_i*qq/hbar -(s_i-s_i0)/tau,       *
@@ -1647,10 +1646,9 @@
       zz= zz -nint(zz/zleng)*zleng
 !
       rr = sqrt(xx**2 +yy**2 +zz**2)
-      j_ki= Jint(k,i)*(r_ij(k,i)/rr)**n_of_j
+      J_ki= Jint(k,i)*(r_ij(k,i)/rr)**n_of_j
 !
-      um1= um1 - 0.5d0*J00* j_ki*(spx(i)*spx(j) &
-                                   +spy(i)*spy(j) +spz(i)*spz(j))
+      um1= um1 - 0.5d0*J00* J_ki*(spx(i)*spx(j) +spy(i)*spy(j) +spz(i)*spz(j))
   590 continue
 !
       uu1(1)= ub1
@@ -1672,9 +1670,9 @@
         open (unit=11,file=praefixc//'.11'//suffix2, &
                   status='unknown',position='append',form='formatted')
 !
-!* Accumulate in every step
+!* Accumulate in every step                                       Add
         call magnetiz (spx,spy,spz,g,wx1,wy1,wz1,wn1,u1,uav,wt1,np1,1)
-!
+!                                                                  +1
 !* Energy absorption due to phase lag: 
 !       - <m(t)*b(t)/b_0> = - integral m*b/b_0 dt /t 
 !
@@ -1745,7 +1743,7 @@
 !
         timeh(is)= t8
         do 737 i= 1,np1
-        if(spec(i).eq.2) then  ! Fe(2+)
+        if(spec(i).eq.2) then  ! get one of Fe(2+)
           spinx(is)= spx(i)
           spinz(is)= spz(i)
           spin7(is)= sqrt(spx(i)**2 +spy(i)**2 +spz(i)**2)
@@ -1756,43 +1754,45 @@
 !
         Bextx(is)= B00*Bex
         Bextz(is)= B00*Bez
-!                                        ! ic= 7: get average
+!                                                   ic= 7: Get average
         call magnetiz (spx,spy,spz,g,wx1,wy1,wz1,wn1,u1,uav,wt1,np1,7)
-!
+!                                                                  +7
         magx(is)= wx1  ! m= -g*mue_B*s
         magy(is)= wy1  ! u= -m dot b = g*mue_B s*b 
         magz(is)= wz1
 !
 !
-        u_Fe(is)= 0
-        u_O(is)= 0
+        U_Fe(is)= 0
+        U_O(is) = 0
         ds1= 0
         ds2= 0
 !
         do i= 1,np1
-        u_Fe(is)= u_Fe(is) +0.5*fc3*m_Fe*(vx(i)**2 +vy(i)**2 +vz(i)**2)
-        ds1= ds1 +sqrt((x(i)-x_0(i))**2 +(y(i)-y_0(i))**2 &
+        U_Fe(is)= U_Fe(is) +0.5*fc3*m_Fe*(vx(i)**2 +vy(i)**2 +vz(i)**2)
+        ds1     = ds1 +sqrt((x(i)-x_0(i))**2 +(y(i)-y_0(i))**2 &
                                                      +(z(i)-z_0(i))**2)
         end do
 !
         do i= np1+1,np1+np2
-        u_O(is)= u_O(is) +0.5*fc3*m_O*(vx(i)**2 +vy(i)**2 +vz(i)**2)
-        ds2= ds2 +sqrt((x(i)-x_0(i))**2 +(y(i)-y_0(i))**2 &
+        U_O(is)= U_O(is) +0.5*fc3*m_O*(vx(i)**2 +vy(i)**2 +vz(i)**2)
+        ds2    = ds2 +sqrt((x(i)-x_0(i))**2 +(y(i)-y_0(i))**2 &
                                                      +(z(i)-z_0(i))**2)
         end do
 !
-        ds_Fe(is) = ds1/np1
+        ds_Fe(is) = ds1/np1 
         ds_O(is)  = ds2/np2
 !
-        u1 = u1 + u_Fe(is) + u_O(is)
+        u1 = u1 + U_Fe(is) + U_O(is)
 !
-        usys8(is)= u1/np1  ! uav
-        usys(is)=  u1/np1
+!% mpif90 -mcmodel=medium -fpic -o ay.out @spin_SMD5h.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
+!                                                                *
+        Usys8(is)= u1/np1  ! <Usys>= <U_O +U_Fe>
+        Usys(is)=  u1/np1
         uss(is) =  um/np1
         usb(is) =  ub/np1
 !
-        u_Fe(is)= u_Fe(is)/np1
-        u_O(is) = u_O(is) /np2
+        U_Fe(is)= U_Fe(is)/np1
+        U_O(is) = U_O(is) /np2
 !
         e_sp  = e_sp/np1
         e_c_r = e_c_r/np1
@@ -1866,8 +1866,8 @@
           ft06_start= .false.
 !
           write(11,770)
-  770     format(//,'# MD run is performed #',/, &
-            '      t8   it   is     itr  usys      u_Fe      u_O     ',&
+  770     format(//,'# MD Run is performed #',/, &
+            '      t8   it   is     itr  Usys      U_Fe      U_O     ',&
             '  conv      f*dts/m_i    v*dt      e_sp     e_c_r    ',   &
             ' e_LJ     magz   deV_x(Fe)   deV_x(O)   cpu(min)')
           write(11,*)
@@ -1878,14 +1878,14 @@
         vdt4(is)= vdt8
         idt4(is)= ifdt
 ! 
-        write(11,771) t8,it,is,iter,usys(is),u_Fe(is),u_O(is),conv(is), &
+        write(11,771) t8,it,is,iter,Usys(is),U_Fe(is),U_O(is),conv(is), &
                  fdt8,vdt8,e_sp,e_c_r,e_LJ,magz(is),ds_Fe(is),ds_O(is), &
                  wtime/60.d0
   771   format('t=',f7.1,i8,i5,i4,1p6d10.2,3d10.2,0pf10.5,2f10.3,f8.2)
 !
-!                                        ! ic= 0: reset wx-wn
+!                                                   ic= 0: Reset wx-wn
         call magnetiz (spx,spy,spz,g,wx1,wy1,wz1,wn1,u1,uav,wt1,np1,0)
-!
+!                                                                  +0
         close (11)
       end if
 !
@@ -1919,8 +1919,8 @@
         write(12) np1,np2,spec,site,nintS,lintS,nintC,lintC,if_LJ
         write(12) i1,i2,i3,i4,disp_recv,cnt_recv,disp_recvC,cnt_recvC
         write(12) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz, &
-                  usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz,sum_mb, &
-                  u_Fe,u_O,fdt4,vdt4,idt4,timeh
+                  Usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz,sum_mb, &
+                  U_Fe,U_O,fdt4,vdt4,idt4,timeh
         close(12)
       end if
 !
@@ -2147,7 +2147,7 @@
 !
 !-----------------------------------------------------------------
       subroutine init (x,y,z,ch,spx,spy,spz,sp2,spec,site, &
-                       xleng0,yleng0,zleng0,np1,np2,np10,  &
+                       xleng0,yleng0,zleng0,np1,np2,np000, & 
                        i1x,i2x,i1y,i2y,i1z,i2z,rank,size)
 !-----------------------------------------------------------------
       use, intrinsic :: iso_c_binding
@@ -2161,11 +2161,12 @@
                  spz(np0),sp2(np0),spin2,spin3,Jaa,Jbb,Jab,     &
                  Bapx,Bapy,Bapz,tau_b,tau_diss,Temp,TCurie,     &
                  xleng,yleng,zleng,pi,pi2,th,ph,xx,yy,zz,       &
-                 t8,dt,tmax,cptot,xleng0,yleng0,zleng0,          &
+                 t8,dt,tmax,cptot,xleng0,yleng0,zleng0,         &
                  a(3),b(3),c(3),qFe2,qFe3,qo
       real(C_DOUBLE) eps,ranff
-      integer(C_INT) spec(np0),site(np0),np1,np2,rank,size,np10,np20,  &
-                 mx,my,mz,i,l,j,lo,ia,ja,ka,ic,jc,kc,i1,i2,j1,j2,k1,k2,&
+      integer(C_INT) spec(np0),site(np0),np1,np2,rank,size,  &
+                 np000,np10,np20,mx,my,mz,i,l,j,lo,          & !<- np000
+                 ia,ja,ka,ic,jc,kc,i1,i2,j1,j2,k1,k2,        &
                  nFe2,nFe3,ierror,i1x,i2x,i1y,i2y,i1z,i2z
       character  char*2,text1*173  !text1*125
 !
@@ -2191,11 +2192,11 @@
         open (unit=17,file='magnetite8.xyz', & ! *173
                               status='old',form='formatted')
 !
-        read(17,'(i6)') np10 
+        read(17,'(i6)') np000   !<<-- the number in a cell
         read(17,'(a125)') text1
       end if
 !
-      call mpi_bcast ( np10,  1,mpi_integer,  0,mpi_comm_world,ierror)
+      call mpi_bcast (np000,  1,mpi_integer,  0,mpi_comm_world,ierror)
 !     call mpi_bcast (text1,125,mpi_character,0,mpi_comm_world,ierror)
 !
       pi= 4.d0*atan(1.d0)
@@ -2216,7 +2217,7 @@
 !  FT17: O(1)...O(32) B(1)...B(16) A(1)...A(8) 
 !
   100 l= l +1
-      if(l.gt.np10) go to 700
+      if(l.gt.np000) go to 700
 !
 !* Balance charges on cubic sub-lattice
 !
@@ -2238,6 +2239,8 @@
 ! Oxygen
       if(l.le.32) then  
         j= j +1
+!       +++++++
+!
         xo(j)= xx
         yo(j)= yy
         zo(j)= zz
@@ -2248,6 +2251,8 @@
 !
 ! Fe
       i= i+1
+!     +++++++
+!
       x(i)= xx
       y(i)= yy
       z(i)= zz
@@ -2311,7 +2316,7 @@
 !------------------------
 !  (mx,my,mz) the number of domains - must be odd numbers
 !
-      l= np10  ! ... Fe
+      l= np10  !<-- the number of Fe in the cell
 !
       xleng= mx*xleng0
       yleng= my*yleng0
@@ -2370,11 +2375,12 @@
       do 300 ja= j1,j2
       do 300 ka= k1,k2
       if(ia.eq.0 .and. ja.eq.0 .and. ka.eq.0) go to 300
-!        ++++++++ Fundamental domain - do not change !!
+!        ++++++++ Fundamental domain - skipped !
 !
 ! Fe
-      do 400 i= 1,np10
+      do 400 i= 1,np10 
       l = l +1
+!
       x(l)= x(i) +ia*a(1) +ja*b(1) +ka*c(1)
       y(l)= y(i) +ia*a(2) +ja*b(2) +ka*c(2)
       z(l)= z(i) +ia*a(3) +ja*b(3) +ka*c(3)
@@ -2430,8 +2436,16 @@
 !
   301 continue
 ! --------------
-      np1= l
+      np1= l     !<<-- the total number of irons
 ! --------------
+!
+!% mpif90 -mcmodel=medium -fpic -o a.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
+      if(rank.eq.0) then
+        open (unit=11,file=praefixc//'.11'//suffix2, &
+                    status='unknown',position='append',form='formatted')
+        write(11,*) 'np000,np1=',np000,np1
+        close (11)
+      end if
 !
 ! Oxygen
 !
@@ -2468,7 +2482,7 @@
   601 continue
 !
 ! --------------
-      np2= j
+      np2= j     !<<-- the total number of oxygens
 ! --------------
 !
 !******************************************************
@@ -2480,7 +2494,8 @@
                     status='unknown',position='append',form='formatted')
 !
         write(11,707) size,np1,np2
-  707   format(' /init/: Num of procs=',i3,'  np(Fe),np(O)=',2i6,/)
+  707   format(' /init/: Number of processors=',i3,/, &
+               '         the number of np(Fe),np(O)=',2i6,/)
         close (11)
 ! +++++
 !
@@ -3153,23 +3168,21 @@
        end
 !
 !
-!------------------------------------------------------------
-      subroutine magnetiz (spx,spy,spz,g,wx,wy,wz,wn,u,uav, &
-                           wt,np,ic)
-!------------------------------------------------------------
-!  magnetization
+!--------------------------------------------------------------------
+      subroutine magnetiz (spx,spy,spz,g,wx,wy,wz,wn,u,uav,wt,np,ic)
+!----------------------------------------------------*-***-------**--
+!  Magnetization
 !
       use, intrinsic :: iso_c_binding
       implicit  none
       include  'param-spinRL5.h'
 !
-      real(C_DOUBLE) spx(np0),spy(np0),spz(np0),g,wx,wy,wz,wn, &
-                u,uav,wt
+      real(C_DOUBLE) spx(np0),spy(np0),spz(np0),g,wx,wy,wz,wn,u,uav,wt
       integer(C_INT) np,ic,i
 !
-! ic< 0: reset and get instantaneous values
-! ic= 0: reset
-! ic= 7: get averaged value
+! ic< 0: Reset and get instantaneous values
+! ic= 0: Reset
+! ic= 7: Get averaged value
 !   one cycle must be ic= 1 -> 7 -> 0
 !
       if(ic.le.0) then
@@ -3177,8 +3190,9 @@
         wy= 0
         wz= 0
         wn= 0
+!
         uav= 0
-        wt= 0
+        wt = 0
         if(ic.eq.0) return
       end if
 !
@@ -3190,13 +3204,13 @@
   100 continue
 !
       uav= uav +u      ! System total energy (not per atom)
-      wt= wt +1
+      wt = wt +1
 !
       if(ic.lt.0 .or. ic.eq.7) then
         wx= -g*wx/wn   ! in mue_B unit
-        wy= -g*wy/wn
+        wy= -g*wy/wn   !  -g*<spx>
         wz= -g*wz/wn
-        uav= uav/wt
+        uav= uav/wt    !  <uav>
       end if
 !
       return
@@ -3471,7 +3485,7 @@
       call symbol (0.5,14.4,hh,'TCurie= ', 0.,8)
       call values (3.5,14.4,hh,TCurie4,0.,101)
 !
-      qaa4= Jaa  ! in 1 MeV ? 10 MeV ???
+      qaa4= Jaa  ! in 1 MeV - 10 MeV 
       qbb4= Jbb
       qab4= Jab
       call symbol (7.5,16.0,hh,'Jaa=', 0.,4)
@@ -3776,15 +3790,15 @@
       include      'param-spinRL5.h'
 !
       real(C_float) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz, &
-                    usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz, &
-                    sum_mb,u_Fe,u_O,ds_Fe,ds_O,fdt4,vdt4,idt4,timeh,&
+                    Usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz, &
+                    sum_mb,U_Fe,U_O,ds_Fe,ds_O,fdt4,vdt4,idt4,timeh,&
                     cosd,sind,B00,Bmw,mue_B,hh,av_mz(nhs),ss,s2,  &
                     emax,emin,emax1,emax2,emax3,emin1,emin2,emin3
       common/ehist/ spinx(nhs),spinz(nhs),spin7(nhs), &
                     Bextx(nhs),Bextz(nhs),magx(nhs),magy(nhs),magz(nhs),&
-                    usys(nhs),conv(nhs),aitr(nhs),psdt(nhs),tfix(nhs),  &
+                    Usys(nhs),conv(nhs),aitr(nhs),psdt(nhs),tfix(nhs),  &
                     uss(nhs),usb(nhs),tsx(nhs,3),tsy(nhs,3),tsz(nhs,3), &
-                    sum_mb(nhs),u_Fe(nhs),u_O(nhs),ds_Fe(nhs),ds_O(nhs),&
+                    sum_mb(nhs),U_Fe(nhs),U_O(nhs),ds_Fe(nhs),ds_O(nhs),&
                     fdt4(nhs),vdt4(nhs),idt4(nhs),timeh(nhs)
 !
       real(C_DOUBLE) spin2,spin3,Jaa,Jbb,Jab,Bapx,Bapy,Bapz,tau_b, &
@@ -3880,9 +3894,9 @@
       call chart
 !------------------------
 !
-      call lplmax (usys,emax,emin,is)
-      call lplot1 (2,4,is,timeh,usys,emax,emin,ILN,nxtick,nytick,&
-                   'usys    ',8,'        ',8,'        ',8,0)
+      call lplmax (Usys,emax,emin,is)
+      call lplot1 (2,4,is,timeh,Usys,emax,emin,ILN,nxtick,nytick,&
+                   'Usys    ',8,'        ',8,'        ',8,0)
 !
       call lplmax (Bextx,emax,emin,is)
       emax = amax1(emax,-emin)
@@ -3919,13 +3933,13 @@
       call lplot1 (2,5,is,timeh,ds_O,emax,emin,ILN,nxtick,nytick,&
                    ' ds_O   ',8,'        ',8,'        ',8,0)
 !
-      call lplmax (u_O,emax,emin,is)
-      call lplot1 (3,4,is,timeh,u_O,emax,emin,ILN,nxtick,nytick,&
-                   ' kin_O  ',8,'        ',8,'        ',8,0)
+      call lplmax (U_O,emax,emin,is)
+      call lplot1 (3,4,is,timeh,U_O,emax,emin,ILN,nxtick,nytick,&
+                   ' Kin_O  ',8,'        ',8,'        ',8,0)
 !
-      call lplmax (u_Fe,emax,emin,is)
-      call lplot1 (3,5,is,timeh,u_Fe,emax,emin,ILN,nxtick,nytick,&
-                   ' kin_Fe ',8,'        ',8,'        ',8,0)
+      call lplmax (U_Fe,emax,emin,is)
+      call lplot1 (3,5,is,timeh,U_Fe,emax,emin,ILN,nxtick,nytick,&
+                   ' Kin_Fe ',8,'        ',8,'        ',8,0)
 !
       call lplmax (fdt4,emax,emin,is)
       call lplot1 (2,6,is,timeh,fdt4,emax,emin,ILN,nxtick,nytick,&
