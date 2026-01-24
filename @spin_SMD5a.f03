@@ -132,7 +132,7 @@
 !*****************************************************************
 !* >> Parallel Fortran 2003/2008                                 *
 !*                                                               *
-!* % mpif90 -mcmodel=medium -fpic -o ax.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
+!* % mpif90 -O2 -mcmodel=medium -fpic -o ax.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
 !* % mpiexec -n 5 ax.out &                                       *
 !*                                                               *
 !*  Debian-13 OS may need "-fallow-argument-mismatch"            *
