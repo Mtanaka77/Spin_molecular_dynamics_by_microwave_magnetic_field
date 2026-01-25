@@ -121,21 +121,22 @@
 !*    m_unit= 1.67261d-24    ! m_H                               *
 !*                                                               *
 !*****************************************************************
-!* >> To get a free format of f90/f03, convert f77 into:         *
+!*  To get a free format of f90/f03, convert f77 into:           *
+!*  convert: :%s/^c/!/  :%s/^*/!/  and :wq                       *
 !*                                                               *
-!*   Inside the vi editor: :%s/^c/!/, :%s/^*/!/, and :wq         *
-!*   Outside the vi editor:                                      *
-!*     tr 'a-z' 'a-z' <@spin_SMD5a.f >@spin_SMD5a.f03            *
-!*                                                               *
-!*   On Fortran 2003, "use, intrinsic :: iso_c_binding"          *
-!*   Also,format statement on Fortran 2003 is DIFFERENT.         *
+!*  tr 'a-z' 'a-z' <@spin_nucCLD7M3.f >@spin_nucCLD7M3.f03       *
+!*  On Fortran 2003, "use, intrinsic :: iso_c_binding"           *
+!*  Format statement is DIFFERENT in Fortran 2003.               *
 !*****************************************************************
-!* >> Parallel Fortran 2003/2008                                 *
+!* > Fortran 2003 gfortran                                       *
+!* $ mpif90 -mcmodel=medium -fpic -o ax.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
+!* $ mpif90 -mcmodel=medium -fpic -O2 -o ax.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
 !*                                                               *
-!* % mpif90 -O2 -mcmodel=medium -fpic -o ax.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
-!* % mpiexec -n 5 ax.out &                                       *
+!* > PGI Fortran - Nvidia 25.11                                  *
+!* $ mpif90 -O2 -o ax.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
 !*                                                               *
-!*  Debian-13 OS may need "-fallow-argument-mismatch"            *
+!* $ mpiexec -n 5 ax.out &                                       *
+!* Debian-13: -fallow-argument-mismatch                          *
 !*****************************************************************
 !
       program spin37
