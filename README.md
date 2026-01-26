@@ -24,11 +24,13 @@ Dissipation spin molecular dynamics simulation is executed in the MD step
 ## Numerical Code, Parameters and Files
 
 1) @spin_SMD5a.f03: Dissipative spin molecular dynamics. An odd number of processors
-in the z direction is required for one's choice. Read the simulation code for details !!
+in the z direction is required for your choice. Read the simulation code and parameters
+for details !!
 
 3) param_spinRL5.h: Parameters 
 
- > number of nodes, total cells of irons and oxygens, p3m resolution
+ > number of processors (nodes), total cells of irons and oxygens (odd numbers),
+p3m resolution
   
 3) SAI105_config.START1: Configuration file
 
