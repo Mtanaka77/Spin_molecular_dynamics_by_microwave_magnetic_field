@@ -12,7 +12,7 @@ above the Curie temperature (M. Tanaka et al., Phys. Rev. B, 2009), Ref.2.
 
 Electron spins of Fe(3+), Fe(2+) and O(2-) in cubic cells
 
-Microwaves of giga-Hertz frequency, like 2.5 GHz
+Magnetic microwaves of giga-Hertz frequency, like 2.5 GHz
 
 Metropolis criterion is used to accept/reject in the MC steps
 
