@@ -1603,8 +1603,8 @@
       vdt8= dts* max(abs(vx(i)),abs(vy(i)),abs(vz(i)))
 !
       vth= vth0/sqrt(mass(i))
-      if(fdt8.gt.0.2*vth .or. vdt8.gt.0.3d0) then
 !
+      if(fdt8.gt.0.2*vth .or. vdt8.gt.0.3d0) then
         if(.false.) then
 !       if(ifdt.ge.5 .and. rank.eq.0) then
           open (unit=11,file=praefixc//'.11'//suffix2, &
@@ -1621,11 +1621,11 @@
 !
            close (11)
         end if
-!
-        ifdt= ifdt +1
-        go to 4000
       end if
       end do
+!
+      ifdt= ifdt +1
+      go to 4000
  5000 continue 
 !
 ! -----------------------------------------------
@@ -1885,7 +1885,7 @@
         write(11,771) t8,it,is,iter,Usys(is),U_Fe(is),U_O(is),conv(is), &
                  fdt8,vdt8,e_sp,e_c_r,e_LJ,magz(is),ds_Fe(is),ds_O(is), &
                  wtime/60.d0
-  771   format('t=',f7.1,i8,i5,i4,1p6d10.2,3d10.2,0pf10.5,2f10.5,f8.2)
+  771   format('t=',f7.1,i8,i5,i4,1p6d10.2,3d10.2,d10.2,2d10.3,0pf8.2)
 !
 !                                                   ic= 0: Reset wx-wn
         call magnetiz (spx,spy,spz,g,wx1,wy1,wz1,wn1,u1,uav,wt1,np1,0)
