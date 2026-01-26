@@ -129,7 +129,6 @@
 !*  Format statement is DIFFERENT in Fortran 2003.               *
 !*****************************************************************
 !* > Fortran 2003 gfortran                                       *
-!* $ mpif90 -mcmodel=medium -fpic -o ax.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
 !* $ mpif90 -mcmodel=medium -fpic -O2 -o ax.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
 !*                                                               *
 !* > PGI Fortran - Nvidia 25.11                                  *
@@ -370,7 +369,7 @@
                     iwrt1,iwrt2,iwrta,iwrtb,iter,itermax,     &
                     i00,i,j,k,l,nsite,notconv,nframe,mx,my,mz,&
                     ir0,lsite(num_proc,np0),ic,nstep_MC,nstep_MCt, &
-                    ifdt,kmax,if_vres(np0),ifv
+                    ifdt,kmax,if_vres(np0)
       common/parm1/ it,is
       common/parm2/ dtwr,dtwr2
       common/parm3/ t8,pi,dt,tmax,cptot
@@ -1441,9 +1440,10 @@
       ss= ((spx1(i) -spx0(i))**2 +(spy1(i) -spy0(i))**2  &
                                  +(spz1(i) -spz0(i))**2) &
                  /(spx0(i)**2 +spy0(i)**2 +spz0(i)**2)
-      smax= dmax1(ss,smax)
+      smax= max(ss,smax)
       sav = sav +ss
 !
+!*  notconv is counted unless teler accuracy is reached
       if(abs(ss).gt.toler) then
         notconv= notconv +1
       end if
@@ -1474,8 +1474,6 @@
 ! ---------------------------------------------------------------
 !* Use a sub-time mesh, such that  v*dts < 1
 !
-      ifdt= 0
-!
       do i= 1,np1+np2
       x0(i)= x(i)     !<- x0(i) these 43 lines below, x(i)
       y0(i)= y(i)
@@ -1494,13 +1492,19 @@
       end if
 !
 !
- 4000 if(ifdt.eq.0) then
+!-------------------------------------------------------
+!  Give small additions by dts when kmax becomes large
+!-------------------------------------------------------
+!
+      ifdt= 1
+ 4000 if(ifdt.eq.1) then
         kmax= 1
         dts= dt
 !
       else
         kmax= 2*kmax  !<-- Small steps
         dts= dt/kmax
+        if(kmax.lt.0) go to 5300  ! kmax<0 for negative value, goto 5300
 !
         do i= 1,np1+np2
         x(i)= x0(i)   !<- x0(i) 43 lines above
@@ -1582,7 +1586,7 @@
       vy(i)= vy(i) +dts*(fy(i) +fyC(i) +fky(i))/mass(i)
       vz(i)= vz(i) +dts*(fz(i) +fzC(i) +fkz(i))/mass(i)
 !
-      x(i)= x(i) +dts*vx(i) !<- x(i)
+      x(i)= x(i) +dts*vx(i) 
       y(i)= y(i) +dts*vy(i)
       z(i)= z(i) +dts*vz(i)
       end do
@@ -1591,13 +1595,12 @@
 !
       fdt8= 0
       vdt8= 0
-      ifv= 0
 !
       do i= 1,np1+np2
-      fdt8= dts* dmax1(abs(fx(i)+fxC(i)+fkx(i)), &
-                       abs(fy(i)+fyC(i)+fky(i)), &
-                       abs(fz(i)+fzC(i)+fkz(i)) )/mass(i)
-      vdt8= dts* dmax1(abs(vx(i)),abs(vy(i)),abs(vz(i)))
+      fdt8= dts* max(abs(fx(i)+fxC(i)+fkx(i)), &
+                     abs(fy(i)+fyC(i)+fky(i)), &
+                     abs(fz(i)+fzC(i)+fkz(i)) )/mass(i)
+      vdt8= dts* max(abs(vx(i)),abs(vy(i)),abs(vz(i)))
 !
       vth= vth0/sqrt(mass(i))
       if(fdt8.gt.0.2*vth .or. vdt8.gt.0.3d0) then
@@ -1608,22 +1611,19 @@
                     status='unknown',position='append',form='formatted')
 !
            write(11,570) it,t8,i,ifdt,dts,fdt8/vth,vdt8
-           write(11,571) x(i),y(i),z(i),vx(i),vy(i),vz(i), &
-                          dts*(fx(i)+fxC(i)+fkx(i))/(mass(i)*vth), &
-                          dts*(fy(i)+fyC(i)+fky(i))/(mass(i)*vth), &
-                          dts*(fz(i)+fzC(i)+fkz(i))/(mass(i)*vth)
+!          write(11,571) x(i),y(i),z(i),vx(i),vy(i),vz(i), &
+!                        dts*(fx(i)+fxC(i)+fkx(i))/(mass(i)*vth), &
+!                        dts*(fy(i)+fyC(i)+fky(i))/(mass(i)*vth), &
+!                        dts*(fz(i)+fzC(i)+fkz(i))/(mass(i)*vth)
   570      format('it,t8=',i8,f8.1,'  i,ifdt=',i4,i2, &
-                  '   dts,fdt8/vth,vdt8=',1pd10.2,0p2f10.5)
+                  '   dts(best),fdt8/vth,vdt8=',1pd10.2,0p2f10.5)
   571      format(5x,'x:',1p3d11.3,3x,'vx:',3d11.3,/,5x,'fdt:',3d11.3)
 !
            close (11)
         end if
 !
-        ifv= ifv +1
-        if(ifv.ge.1) then
-          ifdt= ifdt +1
-          go to 4000
-        end if
+        ifdt= ifdt +1
+        go to 4000
       end if
       end do
  5000 continue 
@@ -1789,8 +1789,6 @@
 !
         u1 = u1 + U_Fe(is) + U_O(is)
 !
-!% mpif90 -mcmodel=medium -fpic -o ay.out @spin_SMD5h.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
-!                                                                *
         Usys8(is)= u1/(np1+np2)  ! <Usys>= <U_O +U_Fe>
         Usys(is)=  u1/(np1+np2)
 !
@@ -1867,15 +1865,15 @@
         psdt(is)= dtrhs
         sum_mb(is)= del_en
 !
-!       if(is.eq.1) then
+!  Give spaces here when the run starts... 
         if(ft06_start) then
           ft06_start= .false.
 !
           write(11,770)
   770     format(//,'# MD Run is performed #',/, &
-            '      t8   it   is     itr  Usys      U_Fe      U_O     ',&
-            '  conv      f*dts/m_i    v*dt      e_sp     e_c_r    ',   &
-            ' e_LJ     magz   deV_x(Fe)   deV_x(O)   cpu(min)')
+            '      t8    it   is   iter  Usys      U_Fe      U_O     ',&
+            '  conv    f*dts/m_i   v*dt      e_sp     e_c_r    ',   &
+            '  e_LJ        magz     deV_x(Fe)  deV_x(O)  cpu(min)')
           write(11,*)
         end if
 !
@@ -1887,7 +1885,7 @@
         write(11,771) t8,it,is,iter,Usys(is),U_Fe(is),U_O(is),conv(is), &
                  fdt8,vdt8,e_sp,e_c_r,e_LJ,magz(is),ds_Fe(is),ds_O(is), &
                  wtime/60.d0
-  771   format('t=',f7.1,i8,i5,i4,1p6d10.2,3d10.2,0pf10.5,2f10.3,f8.2)
+  771   format('t=',f7.1,i8,i5,i4,1p6d10.2,3d10.2,0pf10.5,2f10.5,f8.2)
 !
 !                                                   ic= 0: Reset wx-wn
         call magnetiz (spx,spy,spz,g,wx1,wy1,wz1,wn1,u1,uav,wt1,np1,0)
@@ -2121,7 +2119,7 @@
         snt2= 2**(1.d0/6.d0)
         rLJ = r/(rintC(k,i)/snt2)   ! Minimum at rintC(k,i) for this pair
 !                *****
-        rsi = 1/dmax1(rLJ**2, 0.81d0)
+        rsi = 1/max(rLJ**2, 0.81d0)
         snt = rsi*rsi*rsi
 !
         e_LJ = e_LJ +fc2*(d/12.d0)*snt*(snt -1.d0)
@@ -2445,7 +2443,6 @@
       np1= l     !<<-- the total number of irons
 ! --------------
 !
-!% mpif90 -mcmodel=medium -fpic -o a.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
       if(rank.eq.0) then
         open (unit=11,file=praefixc//'.11'//suffix2, &
                     status='unknown',position='append',form='formatted')

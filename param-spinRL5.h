@@ -1,6 +1,4 @@
-!-------------------------------------------
-!  num_proc=1-8  for energy minimization
-!-------------------------------------------
+!  magnetite8.xyz, param-spinRL5.h 
 !
       integer*4   num_proc,np0,nbx,nhs,meshx,meshy,meshz
       integer*4   P_max,MINTPOL
