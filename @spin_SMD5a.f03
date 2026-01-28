@@ -129,6 +129,7 @@
 !*  Format statement is DIFFERENT in Fortran 2003.               *
 !*****************************************************************
 !* > Fortran 2003 gfortran                                       *
+!*                                                               *
 !* $ mpif90 -mcmodel=medium -fpic -O2 -o ax.out @spin_SMD5a.f03 -I/opt/fftw3/include -L/opt/fftw3/lib -lfftw3 &> log
 !*                                                               *
 !* > PGI Fortran - Nvidia 25.11                                  *
@@ -356,7 +357,8 @@
                  buffer1(4),buffer2(4),del_en,wtime,            &
                  fc3,J_ki,wfdt,vth0,vth_O,vth_Fe,vth,           &
                  svx,svy,svz,sqrt2,vmax1,dgaus2,vsq1,vsq2,      &
-                 vx1,vy1,vz1,mas,e_sp,e_c_r,e_LJ,e_Coulomb_p3m
+                 vx1,vy1,vz1,mas,e_sp,e_sp0,e_sp1,e_c_r,e_c_r0, &
+                 e_c_r1,e_LJ,e_LJ0,e_LJ1,e_Coulomb_p3m
 !
       real(C_DOUBLE) x0(np0),y0(np0),z0(np0),vx0(np0),vy0(np0),vz0(np0)
       real(C_DOUBLE) x_0(np0),y_0(np0),z_0(np0)
@@ -399,8 +401,8 @@
                     uss(nhs),usb(nhs),tsx(nhs,3),tsy(nhs,3),tsz(nhs,3), &
                     sum_mb(nhs),U_Fe(nhs),U_O(nhs),ds_Fe(nhs),ds_O(nhs),&
                     fdt4(nhs),vdt4(nhs),idt4(nhs),timeh(nhs)
-      logical       MC_first,ft06_start
-      data          MC_first/.true./,ft06_start/.true./
+      logical       MC_first,ft06_start,if_LJ1
+      data          MC_first/.true./,ft06_start/.true./,if_LJ1/.true./
 !
       real(C_DOUBLE) alpha,xleng,yleng,zleng
       integer(C_INT) PP
@@ -498,6 +500,7 @@
         read(12) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz,       &
                  Usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz,sum_mb,&
                  U_Fe,U_O,fdt4,vdt4,idt4,timeh
+        read(12) e_sp0,e_c_r0,e_LJ0,if_LJ1
         close(12)
 !
 !    # Change READ_CONF #
@@ -1689,9 +1692,10 @@
 !
         del_en= del_en - g*ss/np1
 !
-! ------------------------------
-!*  For FT13 output            *
-! ------------------------------
+!**********************************
+!*  For FT13 output               *
+!**********************************
+!
         open (unit=13,file=praefixc//'.13'//suffix2, &
                   status='unknown',position='append',form='unformatted')
 !
@@ -1721,7 +1725,7 @@
 !*  Make xyz file for DS Viewer   *
 !**********************************
 !
-        open (unit=23,file=praefixc//suffix2//'mg.xyz', &
+        open (unit=23,file=praefixc//'.23'//suffix2//'.xyz', &
                   status='unknown',position='append',form='formatted')
 !                         +++++++
 !
@@ -1798,9 +1802,17 @@
         U_Fe(is)= U_Fe(is)/np1
         U_O(is) = U_O(is) /np2
 !
-        e_sp  = e_sp /(np1+np2)
-        e_c_r = e_c_r/(np1+np2)
-        e_LJ  = e_LJ /(np1+np2)
+        if(if_LJ1) then
+          if_LJ1= .false.
+!
+          e_sp0 = e_sp
+          e_c_r0= e_c_r
+          e_LJ0 = e_LJ
+        end if
+!
+        e_sp1  = (e_sp  -e_sp0) /(np1+np2)
+        e_c_r1 = (e_c_r -e_c_r0)/(np1+np2)
+        e_LJ1  = (e_LJ  -e_LJ0) /(np1+np2)
 !
         t4 = t8
         Bex4= B00*Bex
@@ -1882,8 +1894,8 @@
         vdt4(is)= vdt8
         idt4(is)= ifdt
 ! 
-        write(11,771) t8,it,is,iter,Usys(is),U_Fe(is),U_O(is),conv(is), &
-                 fdt8,vdt8,e_sp,e_c_r,e_LJ,magz(is),ds_Fe(is),ds_O(is), &
+        write(11,771) t8,it,is,iter,Usys(is),U_Fe(is),U_O(is),conv(is),  &
+                 fdt8,vdt8,e_sp1,e_c_r1,e_LJ1,magz(is),ds_Fe(is),ds_O(is), &
                  wtime/60.d0
   771   format('t=',f7.1,i8,i5,i4,1p6d10.2,3d10.2,d10.2,2d10.3,0pf8.2)
 !
@@ -1925,6 +1937,7 @@
         write(12) spinx,spinz,spin7,Bextx,Bextz,magx,magy,magz, &
                   Usys,conv,aitr,psdt,tfix,uss,usb,tsx,tsy,tsz,sum_mb, &
                   U_Fe,U_O,fdt4,vdt4,idt4,timeh
+        write(12) e_sp0,e_c_r0,e_LJ0,if_LJ1
         close(12)
       end if
 !
@@ -2096,7 +2109,7 @@
       go to 600
 !
   400 continue
-      if(.true.) go to 300  !<-- 
+!!    if(.true.) go to 300  !<-- 
 !     +++++++++ 
 !
       if(spec(i).eq.1 .or. spec(j).eq.1) then
@@ -2493,6 +2506,7 @@
 !******************************************************
 !
       if(rank.eq.0) then
+!
         open (unit=11,file=praefixc//'.11'//suffix2, &
                     status='unknown',position='append',form='formatted')
 !
@@ -2500,12 +2514,15 @@
   707   format(' /init/: Number of processors=',i3,/, &
                '         the number of np(Fe),np(O)=',2i6,/)
         close (11)
-! +++++
 !
-        open (unit=18,file='mag3.xyz',form='formatted')
+!**********************************
+!*  FT18                          *
+!**********************************
+!
+        open (unit=18,file=praefixc//'.18'//suffix2,form='formatted')
 !
         write(18,'(i6)') np1,np2
-        write(18,'(a80)') 'magnetite in 3d'
+        write(18,'(a80)') 'magnetite in 3D'
 !
         do 105 i= 1,np1
         j= np1 +i
@@ -2523,13 +2540,15 @@
 !
         close (18)
 !
-!* make xyz file for ds viewer
+!**********************************
+!*  Make xyz file for DS Viewer   *
+!**********************************
 !
-        open (unit=23,file=praefixc//suffix2//'mg.xyz', &
+        open (unit=23,file=praefixc//'.23'//suffix2//'.xyz', &
                                  status='unknown',form='formatted')
 !
         write(23,'(i6)') np1+np2
-        write(23,'(a30)') 'all atoms in the entire system'
+        write(23,'(a30)') 'All atoms in the entire system'
 !
         do i= 1,np1
         write(23,123) 'Fe',x(i),y(i),z(i)
@@ -2537,7 +2556,7 @@
         end do
 !
         do i= np1+1,np1+np2
-        write(23,123) 'o ',x(i),y(i),z(i)
+        write(23,123) 'O ',x(i),y(i),z(i)
         end do
 !
         close (23)
